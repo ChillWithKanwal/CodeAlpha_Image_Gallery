@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaSearch, FaHistory, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaSearch, FaHistory, FaTimes, FaTrash, FaTags } from 'react-icons/fa';
 
 const ImageSearch = ({ searchText, darkMode }) => {
   const [text, setText] = useState('');
@@ -8,6 +8,12 @@ const ImageSearch = ({ searchText, darkMode }) => {
   const searchContainerRef = useRef(null);
   const inputRef = useRef(null);
   const historyRef = useRef(null);
+  
+  // Suggested search terms
+  const suggestions = [
+    'nature', 'technology', 'people', 'animals', 
+    'architecture', 'food', 'travel', 'business'
+  ];
 
   // Load search history from localStorage on component mount
   useEffect(() => {
@@ -113,14 +119,21 @@ const ImageSearch = ({ searchText, darkMode }) => {
     setShowHistory(false);
     inputRef.current?.focus();
   };
+  
+  const handleSuggestionClick = (suggestion) => {
+    setText(suggestion);
+    searchText(suggestion);
+    addToHistory(suggestion);
+    inputRef.current?.focus();
+  };
 
   return (
     <div className="max-w-xl mx-auto my-6 px-4" ref={searchContainerRef}>
       <form 
         onSubmit={onSubmit} 
         className={`relative flex items-center ${
-          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-purple-300'
-        } border-2 shadow-lg rounded-lg overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:ring-purple-500`}
+          darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-blue-300'
+        } border-2 shadow-lg rounded-lg overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:ring-blue-500`}
       >
         <div className="flex-grow flex items-center">
           <span className={`pl-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -161,8 +174,8 @@ const ImageSearch = ({ searchText, darkMode }) => {
           type="submit"
           className={`px-4 py-3 h-full ${
             darkMode 
-              ? 'bg-purple-700 hover:bg-purple-600 text-white' 
-              : 'bg-purple-700 hover:bg-purple-800 text-white'
+              ? 'bg-blue-700 hover:bg-blue-600 text-white' 
+              : 'bg-blue-700 hover:bg-blue-800 text-white'
           } transition-colors duration-300`}
           aria-label="Search"
         >
@@ -170,39 +183,33 @@ const ImageSearch = ({ searchText, darkMode }) => {
         </button>
       </form>
       
-      <div className={`text-center mt-2 text-sm font-medium ${
-        darkMode ? 'text-gray-300' : 'text-gray-700'
-      }`}>
-        Try searching for nature, technology, food, etc.
-      </div>
-      
       {/* Search History Dropdown */}
       <div className="relative">
         <div 
           ref={historyRef}
-          className={`absolute left-0 right-0 z-20 mt-1 rounded-lg shadow-lg transform transition-all duration-200 ${
+          className={`relative left-0 right-0 z-50 mt-1 rounded-lg shadow-lg transform transition-all duration-200 ${
             showHistory && searchHistory.length > 0 
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 -translate-y-2 pointer-events-none'
           } ${
-            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-purple-300'
+            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-300'
           }`}
         >
-          <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
-            <h3 className={`text-sm font-bold flex items-center ${darkMode ? 'text-white' : 'text-gray-700'}`}>
-              <FaHistory className="mr-2" size={14} />
+          <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className={`text-lg font-bold flex items-center ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              <FaHistory className="mr-2" size={16} />
               Recent Searches
             </h3>
             <button 
-              className={`px-2 py-1 text-xs font-bold rounded ${
+              className={`px-3 py-1 text-xs font-bold rounded ${
                 darkMode 
-                  ? 'bg-gray-700 text-purple-300 hover:bg-gray-600' 
-                  : 'bg-gray-200 text-purple-600 hover:bg-gray-300'
+                  ? 'bg-gray-700 text-blue-300 hover:bg-gray-600' 
+                  : 'bg-gray-200 text-blue-600 hover:bg-gray-300'
               } transition-colors duration-200 flex items-center`}
               onClick={clearHistory}
               aria-label="Clear search history"
             >
-              <FaTrash size={10} className="mr-1" />
+              <FaTrash size={12} className="mr-1" />
               Clear All
             </button>
           </div>
@@ -210,7 +217,7 @@ const ImageSearch = ({ searchText, darkMode }) => {
             {searchHistory.map((term, index) => (
               <li 
                 key={index} 
-                className={`py-2 px-3 cursor-pointer flex items-center justify-between group ${
+                className={`py-2 px-4 cursor-pointer flex items-center justify-between group ${
                   darkMode 
                     ? 'text-white hover:bg-gray-700' 
                     : 'text-gray-700 hover:bg-gray-100'
@@ -222,7 +229,7 @@ const ImageSearch = ({ searchText, darkMode }) => {
                 aria-selected="false"
               >
                 <div className="flex items-center truncate">
-                  <FaHistory className={`mr-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} size={12} />
+                  <FaHistory className={`mr-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} size={14} />
                   <span className="truncate">{term}</span>
                 </div>
                 <button 
@@ -232,12 +239,30 @@ const ImageSearch = ({ searchText, darkMode }) => {
                   onClick={(e) => removeFromHistory(e, term)}
                   aria-label={`Remove ${term} from history`}
                 >
-                  <FaTimes size={10} />
+                  <FaTimes size={12} />
                 </button>
               </li>
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* Popular Searches Section */}
+      <div className={`mt-2 p-4 rounded-lg shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+        <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+          Popular Searches
+        </h3>
+        <ul className="flex flex-wrap mt-2">
+          {suggestions.map((suggestion, index) => (
+            <li key={index} className={`m-2 p-2 rounded-lg cursor-pointer transition-colors duration-200 ${
+              darkMode 
+                ? 'bg-gray-700 text-white border border-blue-500 hover:bg-blue-600 hover:text-white' 
+                : 'bg-blue-100 text-blue-600 border border-blue-300 hover:bg-blue-200 hover:text-blue-800'
+            }`} onClick={() => handleSuggestionClick(suggestion)}>
+              {suggestion}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
